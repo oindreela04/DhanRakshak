@@ -1,0 +1,45 @@
+{
+  "feature_set": "recovery_features_v1",
+  "numeric": [
+    "amount",
+    "customer_lifetime_value",
+    "historical_payment_success_rate",
+    "historical_recovery_rate",
+    "retry_count",
+    "days_overdue",
+    "customer_tenure",
+    "previous_failed_attempts",
+    "previous_recovery_actions",
+    "days_since_last_payment"
+  ],
+  "categorical": [
+    "payment_method",
+    "failure_reason",
+    "subscription_status",
+    "checkout_stage",
+    "preferred_channel",
+    "time_of_day",
+    "day_of_week",
+    "segment"
+  ],
+  "all": [
+    "amount",
+    "customer_lifetime_value",
+    "historical_payment_success_rate",
+    "historical_recovery_rate",
+    "retry_count",
+    "days_overdue",
+    "customer_tenure",
+    "previous_failed_attempts",
+    "previous_recovery_actions",
+    "days_since_last_payment",
+    "payment_method",
+    "failure_reason",
+    "subscription_status",
+    "checkout_stage",
+    "preferred_channel",
+    "time_of_day",
+    "day_of_week",
+    "segment"
+  ]
+}

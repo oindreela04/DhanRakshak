@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+alembic/versions/*.py
+frontend/node_modules/
+frontend/dist/
+.coverage
+htmlcov/
+*.sqlite3

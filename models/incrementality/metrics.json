@@ -1,0 +1,8 @@
+{
+  "control_recovery_rate": 0.35443467763232356,
+  "treatment_recovery_rate": 0.5301877889968859,
+  "uplift": 0.17575311136456234,
+  "incremental_recovered_revenue": 44567581.17500353,
+  "test_treatment_rows": 105970,
+  "test_control_rows": 26507
+}

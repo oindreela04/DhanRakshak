@@ -1,0 +1,37 @@
+{
+  "model_version": "incrementality-v1",
+  "training_timestamp": "2026-09-02T20:53:27.940500+00:00",
+  "dataset_version": "synthetic-benchmark-2026-v1",
+  "training_rows": 5000,
+  "validation_rows": 0,
+  "test_rows": 132477,
+  "features": [
+    "amount",
+    "customer_lifetime_value",
+    "historical_payment_success_rate",
+    "historical_recovery_rate",
+    "retry_count",
+    "days_overdue",
+    "customer_tenure",
+    "previous_failed_attempts",
+    "previous_recovery_actions",
+    "days_since_last_payment",
+    "payment_method",
+    "failure_reason",
+    "subscription_status",
+    "checkout_stage",
+    "preferred_channel",
+    "time_of_day",
+    "day_of_week",
+    "segment"
+  ],
+  "target": "organic_recovery_probability",
+  "metrics": {
+    "control_recovery_rate": 0.35443467763232356,
+    "treatment_recovery_rate": 0.5301877889968859,
+    "uplift": 0.17575311136456234,
+    "incremental_recovered_revenue": 44567581.17500353,
+    "test_treatment_rows": 105970,
+    "test_control_rows": 26507
+  }
+}
