@@ -1,7 +1,12 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pandas
 scikit-learn
 joblib
 python-multipart
 sqlalchemy
+pydantic
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+email-validator
