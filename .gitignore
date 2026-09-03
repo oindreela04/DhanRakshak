@@ -13,3 +13,5 @@ htmlcov/
 *.sqlite3
 "backend/dhanrakshak.db" 
 "backend/seed_now.py" 
+"data/raw/" 
+"*.db" 
