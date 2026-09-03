@@ -3,7 +3,7 @@
 
 ### Every rupee deserves a second chance.
 
-**DhanRakshak is an AI-powered Revenue Recovery Control Plane that detects revenue at risk, identifies why it is leaking, predicts the most effective recovery action, executes it within deterministic guardrails, verifies the outcome, and measures the incremental revenue recovered.**
+**DhanRakshak is an AI-powered Revenue Recovery Control Plane that detects revenue at risk, identifies why it is leaking, predicts the most effective recovery action, executes it within deterministic guardrails, verifies the outcome and measures the incremental revenue recovered.**
 
 ---
 
