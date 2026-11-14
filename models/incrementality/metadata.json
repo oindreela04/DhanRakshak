@@ -1,9 +1,9 @@
 {
   "model_version": "incrementality-v1",
-  "training_timestamp": "2026-09-02T20:53:27.940500+00:00",
+  "training_timestamp": "2026-11-14T17:04:51.664820+00:00",
   "dataset_version": "synthetic-benchmark-2026-v1",
-  "training_rows": 5000,
-  "validation_rows": 0,
+  "training_rows": 12346,
+  "validation_rows": 105283,
   "test_rows": 132477,
   "features": [
     "amount",
@@ -30,7 +30,7 @@
     "control_recovery_rate": 0.35443467763232356,
     "treatment_recovery_rate": 0.5301877889968859,
     "uplift": 0.17575311136456234,
-    "incremental_recovered_revenue": 44567581.17500353,
+    "incremental_recovered_revenue": 102063195.24879575,
     "test_treatment_rows": 105970,
     "test_control_rows": 26507
   }

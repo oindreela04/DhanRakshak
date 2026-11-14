@@ -1,0 +1,8 @@
+.git
+data/
+frontend/node_modules
+frontend/dist
+frontend/dhanrakshak.db
+**/__pycache__
+**/.pytest_cache
+.env
