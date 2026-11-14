@@ -1,1429 +1,561 @@
+<div align="center">
 
-# DhanRakshak
+# ₹ DhanRakshak
 
 ### Every rupee deserves a second chance.
 
-**DhanRakshak is an AI-powered Revenue Recovery Control Plane that detects revenue at risk, identifies why it is leaking, predicts the most effective recovery action, executes it within deterministic guardrails, verifies the outcome and measures the incremental revenue recovered.**
+**An AI-powered Revenue Recovery Control Plane.** DhanRakshak finds revenue that is at risk, works out why, predicts which recovery action will bring in the most *incremental* money, and only acts inside deterministic financial guardrails.
+
+[**🌐 Live demo**](https://dhanrakshak-yign.onrender.com) · [Command Center](https://dhanrakshak-yign.onrender.com/console) · [API docs](https://dhanrakshak-yign.onrender.com/docs)
+
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.163-009688?logo=fastapi&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-3.4-EB5E28)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Three.js](https://img.shields.io/badge/react--three--fiber-3D-000000?logo=threedotjs)
+![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?logo=render&logoColor=black)
+
+</div>
+
+> ⏳ The demo runs on Render's free plan. It sleeps after ~15 idle minutes, so the first visit can take 30–50 seconds to wake up.
 
 ---
 
-## 🚀 Overview
+## 📑 Table of contents
 
-Revenue doesn't only disappear when a payment fails.
-
-It leaks through:
-
-- Failed payments
-- Abandoned checkouts
-- Subscription failures
-- Overdue invoices
-- Ineffective retries
-- Payment-method degradation
-- Missed promises-to-pay
-- Customer recovery fatigue
-- Poorly timed interventions
-- Unnecessary discounts
-- Revenue that would have recovered anyway
-
-Traditional payment systems primarily answer:
-
-> **"What failed?"**
-
-DhanRakshak answers:
-
-> **"Which revenue is at risk, why is it at risk, what should we do next, and how much incremental revenue can that action recover?"**
-
-DhanRakshak combines **machine learning, customer behavior intelligence, AI reasoning, recovery economics, deterministic policies, payment execution, and incrementality measurement** into one intelligent revenue recovery system.
+1. [The problem](#-the-problem)
+2. [How DhanRakshak works](#-how-dhanrakshak-works)
+3. [System architecture](#️-system-architecture)
+4. [Core modules](#-core-modules)
+5. [Machine learning](#-machine-learning)
+6. [Frontend: 3D experience & Command Center](#-frontend-3d-experience--command-center)
+7. [API reference](#-api-reference)
+8. [Data model](#️-data-model)
+9. [Tech stack](#️-tech-stack)
+10. [Project structure](#-project-structure)
+11. [Getting started](#-getting-started)
+12. [Deployment](#-deployment)
+13. [Testing](#-testing)
+14. [Roadmap](#-roadmap)
+15. [Disclaimer](#️-disclaimer)
 
 ---
 
-# 🎯 The Core Idea
+## 🧭 The problem
 
-DhanRakshak follows a simple but powerful loop:
+Revenue doesn't only disappear when a payment fails. It leaks through abandoned checkouts, past-due subscriptions, ageing invoices, broken promises to pay, payment-method degradation, over-contacted customers, and discounts given to people who would have paid anyway.
 
-```text
-                 REVENUE EVENT
-                       │
-                       ▼
-                 ┌───────────┐
-                 │  DETECT   │
-                 │ Revenue   │
-                 │   Risk    │
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │ DIAGNOSE  │
-                 │ Root Cause│
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │  PREDICT  │
-                 │ Best Action│
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │ SIMULATE  │
-                 │ Economics │
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │   POLICY  │
-                 │   GUARD   │
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │  EXECUTE  │
-                 │ Recovery  │
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │  VERIFY   │
-                 │  Outcome  │
-                 └─────┬─────┘
-                       ▼
-                 ┌───────────┐
-                 │  MEASURE  │
-                 │ Incremental│
-                 │  Revenue  │
-                 └─────┬─────┘
-                       │
-                       └────────► LEARN
-````
+| Traditional recovery | DhanRakshak |
+|---|---|
+| Payment failed → retry → retry → reminder → hope | Why did it fail? How risky is it? What has worked for *this* customer? |
+| Optimises the number of attempts | Optimises **incremental** revenue minus cost and friction |
+| Takes credit for every recovered payment | Separates organic from assisted recovery with a control group |
+| Automation decides and acts | **Policy Guard** has the final say; every decision is audited |
+
+> **AI recommends. Models quantify. Policy controls. Backend executes. Verification confirms. Audit records.**
 
 ---
 
-# 💡 Why DhanRakshak?
+## 🔁 How DhanRakshak works
 
-### Traditional recovery
-
-```text
-Payment Failed
-      ↓
-Retry
-      ↓
-Retry Again
-      ↓
-Send Reminder
-      ↓
-Hope It Works
+```mermaid
+flowchart LR
+    A([Revenue event]) --> B[DETECT<br/>Revenue risk]
+    B --> C[DIAGNOSE<br/>Root cause]
+    C --> D[PREDICT<br/>Best action]
+    D --> E[SIMULATE<br/>Economics]
+    E --> F{POLICY<br/>GUARD}
+    F -->|ALLOW| G[EXECUTE<br/>Recovery]
+    F -->|ESCALATE| H([Human review])
+    F -->|BLOCK| I([Stop])
+    G --> J[VERIFY<br/>Payment]
+    J --> K[MEASURE<br/>Incrementality]
+    K -->|learn| B
 ```
 
-### DhanRakshak
-
-```text
-Payment Failed
-      ↓
-Why did it fail?
-      ↓
-How risky is this revenue?
-      ↓
-What has worked for this customer?
-      ↓
-Which intervention has the highest expected value?
-      ↓
-Is the action allowed?
-      ↓
-Execute
-      ↓
-Verify
-      ↓
-Measure incremental recovery
-```
-
-The objective isn't to maximize recovery attempts.
-
-## The objective is to maximize incremental revenue while minimizing customer friction.
+| Step | What happens | Where in the code |
+|---|---|---|
+| Detect | Rolling-baseline radar over transactions, checkouts, invoices, subscriptions, promises | `services/revenue_leakage_radar.py` |
+| Diagnose | Evidence-based root cause (liquidity, method mismatch, friction, fatigue…) | `services/root_cause_engine.py` |
+| Predict | Recovery probability for 9 interventions | `ml_api.py`, `models/action_recovery` |
+| Simulate | Expected value net of intervention cost, friction and organic recovery | `services/recovery_economics.py` |
+| Govern | Deterministic rules → `ALLOW` / `BLOCK` / `ESCALATE`, written to the audit log | `services/policy_guard.py` |
+| Execute | Bounded agent records the action and moves to `VERIFICATION_PENDING` | `services/recovery_agent.py`, `adapters/` |
+| Verify & measure | Only confirmed payments count; recovery twin compares against control | `main.py` (`/recovery-twin`), `models/incrementality` |
 
 ---
 
-# 🏗️ System Architecture
+## 🏗️ System architecture
+
+### High-level architecture
 
 ```mermaid
 flowchart TB
+    subgraph Client["🖥️ Browser"]
+        XP["3D Experience<br/>(react-three-fiber)<br/>route: /"]
+        CC["Command Center<br/>(React + Recharts)<br/>route: /console"]
+    end
 
-    A["Payment / Revenue Events"]
+    subgraph Service["☁️ Single Render web service (Docker)"]
+        direction TB
+        STATIC["Static UI<br/>frontend/dist"]
+        subgraph API["FastAPI · backend/app"]
+            ROUTES["REST routes<br/>main.py"]
+            MLAPI["ML inference router<br/>ml_api.py"]
+            subgraph SVC["Domain services"]
+                RADAR["Revenue Leakage Radar"]
+                RCE["Root Cause Engine"]
+                MEM["Recovery Memory / DNA"]
+                ECON["Recovery Economics"]
+                PG["Policy Guard"]
+                AGENT["Recovery Agent"]
+                PROM["Promise Parser"]
+            end
+            ADP["Provider adapters<br/>Razorpay · Demo"]
+        end
+        MODELS[("Trained models<br/>models/*.pkl")]
+        DB[("SQLite demo ledger<br/>(Postgres in docker-compose)")]
+    end
 
-    A --> B["Event Gateway"]
-    B --> C["Event Normalization"]
-    C --> D["Customer Identity Resolution"]
+    RZP(["Razorpay<br/>(webhooks · links)"])
 
-    D --> DB[("PostgreSQL")]
+    XP & CC -->|fetch JSON| ROUTES
+    XP -->|live scoring| MLAPI
+    Service -.serves.-> STATIC
+    ROUTES --> SVC
+    MLAPI --> MODELS
+    SVC --> DB
+    AGENT --> PG
+    AGENT --> ECON
+    AGENT --> RCE
+    RCE --> MEM
+    ECON --> MEM
+    ROUTES --> ADP
+    ADP <--> RZP
+```
 
-    D --> E["Revenue Risk Engine"]
-    DB --> E
+### Layered responsibility
 
-    E --> F["Root Cause Engine"]
+DhanRakshak deliberately separates **intelligence** from **financial authority**:
 
-    F --> G["Customer Recovery DNA"]
+```mermaid
+flowchart TB
+    L1["🧠 <b>Reasoning layer</b><br/>root cause · explanations · promise extraction"]
+    L2["📊 <b>ML decision layer</b><br/>revenue risk · action probability · incrementality · economics"]
+    L3["🛡️ <b>Policy authority</b><br/>deterministic rules → ALLOW / BLOCK / ESCALATE"]
+    L4["⚙️ <b>Execution layer</b><br/>payment links · retries · notifications · escalation"]
+    L5["🧾 <b>Verification & audit</b><br/>confirmed outcomes · audit trail · recovery twin"]
+    L1 --> L2 --> L3 --> L4 --> L5
+```
 
-    G --> H["Action Recovery Models"]
+No layer can skip the one below it: the agent cannot execute a financial action without a Policy Guard decision, and recovered revenue is only counted after verification.
 
-    H --> I["Recovery Economics Engine"]
+### Recovery decision sequence
 
-    I --> J{"Policy Guard"}
+What happens on `POST /api/v1/recovery/decide` and `/execute`:
 
-    J -->|ALLOW| K["Recovery Agent"]
-    J -->|BLOCK| L["Stop Recovery"]
-    J -->|ESCALATE| M["Human Escalation"]
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UI as Command Center
+    participant API as FastAPI
+    participant AG as Recovery Agent
+    participant RC as Root Cause Engine
+    participant EC as Recovery Economics
+    participant PG as Policy Guard
+    participant DB as Database
 
-    K --> N["Payment Provider Adapter"]
+    UI->>API: POST /recovery/decide {customer, amount, method}
+    API->>AG: decide()
+    AG->>RC: analyze(customer)
+    RC->>DB: transactions, invoices, checkouts, DNA
+    RC-->>AG: root cause + confidence + evidence
+    AG->>EC: rank_actions(customer, amount)
+    EC-->>AG: 9 actions ranked by expected incremental value
+    AG->>PG: check(top action, confidence, expected value)
+    PG->>DB: write audit_log
+    PG-->>AG: ALLOW / BLOCK / ESCALATE + failed rules
+    AG-->>UI: decision, state, actions, policy
+    UI->>API: POST /recovery/execute {action}
+    API->>AG: execute() — policy re-checked
+    AG->>DB: recovery_event + recovery_action (EXECUTED)
+    AG-->>UI: state = VERIFICATION_PENDING
+```
 
-    N --> O["Recovery Action"]
+### ML training & serving pipeline
 
-    O --> P["Payment Verification"]
+```mermaid
+flowchart LR
+    subgraph Offline["Offline (scripts/)"]
+        GEN["generate_dataset.py<br/>synthetic merchant data"] --> RAW[("data/raw")]
+        RAW --> SPLIT["chronological split<br/>train · validation · test"]
+        SPLIT --> VAL["validate_dataset.py<br/>leakage & quality checks"]
+        VAL --> TRAIN["train_models.py<br/>ColumnTransformer + XGBoost"]
+        TRAIN --> ART[("models/<br/>model.pkl · metrics.json<br/>metadata.json · features.json")]
+        ART --> DEMO["build_demo_db.py<br/>600-customer ledger,<br/>risk-scored profiles"]
+    end
+    subgraph Online["Online (FastAPI)"]
+        LOAD["lru_cache model loader"] --> INF["/api/v1/ml/score<br/>/api/v1/ml/customers"]
+        LOAD --> PERF["/api/v1/ml/summary<br/>/api/v1/models/performance"]
+    end
+    ART --> LOAD
+    DEMO --> Online
+```
 
-    P --> Q["Incrementality Engine"]
+### Recovery state machine
 
-    Q --> R["Recovery Twin"]
-    Q --> S["Recovery Memory"]
-
-    S --> DB
-
-    DB --> T["Audit Trail"]
-
-    E --> U["Analytics API"]
-    Q --> U
-    T --> U
-
-    U --> V["React Command Center"]
-
-    V --> W["Revenue Radar"]
-    V --> X["Recovery Autopilot"]
-    V --> Y["Customer Recovery DNA"]
-    V --> Z["Promises"]
-    V --> AA["Experiments"]
-    V --> AB["AI Command Center"]
-    V --> AC["Model Performance"]
+```mermaid
+stateDiagram-v2
+    [*] --> DETECTED
+    DETECTED --> DIAGNOSED
+    DIAGNOSED --> RECOMMENDED
+    RECOMMENDED --> POLICY_CHECKED
+    POLICY_CHECKED --> EXECUTED: ALLOW
+    POLICY_CHECKED --> ESCALATED: ESCALATE
+    POLICY_CHECKED --> STOPPED: BLOCK
+    EXECUTED --> VERIFICATION_PENDING
+    VERIFICATION_PENDING --> RECOVERED: payment confirmed
+    VERIFICATION_PENDING --> FAILED: no payment
+    RECOVERED --> [*]
+    FAILED --> RECOMMENDED: re-plan
+    STOPPED --> [*]
+    ESCALATED --> [*]
 ```
 
 ---
 
-# 🧠 Architecture Philosophy
+## 🧩 Core modules
 
-DhanRakshak deliberately separates **AI intelligence from financial authority**.
+### 🔎 Revenue Leakage Radar
+Compares the current 30-day window against the previous one and turns signals into ranked opportunities with risk score, amount, confidence, root-cause candidate, time-to-intervene and recommended action.
 
+Signals: payment degradation · payment-method degradation · sudden customer behaviour change · checkout abandonment · invoice ageing · subscription deterioration · missed promises · recovery fatigue · revenue concentration.
+
+### 👤 Customer Recovery DNA
+A persisted, explainable profile per customer: payment success by method, channel success, recovery success by action, best recovery hour/day, average recovery time, promise reliability, opt-out rate and **recovery fatigue** (`LOW` / `MEDIUM` / `HIGH`).
+
+### 🧩 Root Cause Engine
+Scores competing explanations from stored evidence: `temporary_liquidity_issue`, `payment_method_mismatch`, `authentication_friction`, `bank_network_instability`, `checkout_friction`, `invoice_collection_delay`, `subscription_payment_method_deterioration`, `recovery_fatigue`. It returns a confidence, the evidence list and a recommended intervention.
+
+### 💰 Recovery Economics
 ```text
-┌────────────────────────────────────────────┐
-│                  AI LAYER                  │
-│                                            │
-│ Reasoning • Root Cause • Explanations     │
-│ Promise Extraction • Message Generation   │
-└──────────────────────┬─────────────────────┘
-                       │
-                       ▼
-┌────────────────────────────────────────────┐
-│              ML DECISION LAYER             │
-│                                            │
-│ Risk • Action Probability • Incrementality│
-│ Recovery Economics                         │
-└──────────────────────┬─────────────────────┘
-                       │
-                       ▼
-┌────────────────────────────────────────────┐
-│               POLICY AUTHORITY              │
-│                                            │
-│ ALLOW • BLOCK • ESCALATE                   │
-│                                            │
-│ Deterministic Financial Guardrails         │
-└──────────────────────┬─────────────────────┘
-                       │
-                       ▼
-┌────────────────────────────────────────────┐
-│              EXECUTION LAYER               │
-│                                            │
-│ Payment Links • Retry • Notifications     │
-│ Promise Tracking • Human Escalation       │
-└────────────────────────────────────────────┘
+Expected incremental value = Amount × P(recovery | action)
+                           − Amount × P(recovery | do nothing)
+                           − intervention cost − customer friction − risk penalty
 ```
+Evaluated for: `retry`, `payment_link`, `whatsapp`, `email`, `sms`, `delayed_retry`, `promise_to_pay`, `human_escalation`, `no_action`.
 
-### AI recommends.
+### 🛡️ Policy Guard (default rules)
 
-### Models quantify.
+| Rule | Value |
+|---|---|
+| Max attempts | 3 |
+| Max messages / 7 days | 2 |
+| Max total recovery actions | 3 |
+| Max discount | 10% |
+| Human review above | ₹1,00,000 |
+| Minimum model confidence | 0.65 |
+| Minimum expected incremental recovery | ₹100 |
+| Auto-stop on | success · opt-out · dispute · fraud signal |
 
-### Policy controls.
+Every check is written to `audit_logs` with rules evaluated, rules failed and reason.
 
-### Backend executes.
+### 💬 Promise-to-Pay
+Turns commitments such as *"Monday ko ₹50,000 clear kar dunga"* into a structured promise (amount, date, language, confidence) with reminder tracking. Handles English, Hindi/Hinglish and Bengali cues.
 
-### Verification confirms.
-
-### Audit records.
+### 🪞 Recovery Twin
+Compares the control group (no intervention) against treatment to report organic recovery, assisted recovery, **incremental recovery** and recovery rates with and without DhanRakshak.
 
 ---
 
-# 🔎 01 — Revenue Leakage Radar
+## 🤖 Machine learning
 
-DhanRakshak continuously monitors revenue signals to identify money that is likely to become unrecovered.
+All three models share one feature pipeline (`app/ml/features.py`): `StandardScaler` on numeric features plus `OneHotEncoder` on categorical ones, feeding an **XGBoost** classifier (falls back to `HistGradientBoostingClassifier` if XGBoost is unavailable). Splits are **chronological**, so the models are tested on later data than they were trained on.
 
-### Signals include
+| Model | Question it answers | Target | Trained on |
+|---|---|---|---|
+| `revenue_risk` | Will this revenue be lost? | `eventually_unrecovered` | 62,240 train rows |
+| `action_recovery` | Will *this action* recover it? | `recovered_given_action` (action is a feature) | 62,240 train rows |
+| `incrementality` | Would it recover with no intervention? | organic recovery (control group only) | control-group rows |
 
-* Failed payments
-* Subscription failures
-* Overdue invoices
-* Abandoned checkouts
-* Repeated payment failures
-* Payment-method degradation
-* Missed promises-to-pay
-* Recovery fatigue
-* Sudden customer behavior changes
-* Revenue concentration anomalies
+**Features:** amount, lifetime value, historical payment success rate, historical recovery rate, retry count, days overdue, tenure, previous failed attempts, previous recovery actions, days since last payment, payment method, failure reason, subscription status, checkout stage, preferred channel, time of day, day of week, segment (+ action).
 
-The system converts these signals into an actionable risk view:
+### Results (held-out test set, 132,477 rows)
 
-```text
-TOTAL REVENUE AT RISK
-          │
-     ┌────┼────┐
-     ▼    ▼    ▼
-   HIGH  MEDIUM LOW
-```
+| Metric | Revenue risk |
+|---|---|
+| ROC-AUC | 0.608 |
+| PR-AUC | 0.602 |
+| Precision @ top 5% | 70.3% |
+| Precision @ top 10% | 67.6% |
+| Brier score | 0.243 |
 
-Each risk signal is accompanied by supporting evidence and context.
+| Incrementality | Value |
+|---|---|
+| Control recovery rate | 35.4% |
+| Treatment recovery rate | 53.0% |
+| **Uplift** | **+17.6 pts** |
 
----
+The per-action recovery model reaches a ROC-AUC of 0.59–0.62 across the nine actions. These are honest numbers on noisy synthetic data: the ranking signal (precision in the top decile) is where the value lies.
 
-# 👤 02 — Customer Recovery DNA
-
-Every customer has a unique recovery pattern.
-
-DhanRakshak builds a dynamic recovery profile from historical behavior.
-
-### Example
-
-```text
-CUSTOMER
-Acme Technologies
-
-────────────────────────────────────
-
-Preferred Payment
-UPI
-
-Preferred Channel
-Payment Link
-
-Best Recovery Window
-18:00 – 21:00
-
-Payment Success Rate
-92%
-
-Historical Recovery Rate
-87%
-
-Average Recovery Time
-3.2 hours
-
-Promise Reliability
-94%
-
-Recovery Fatigue
-LOW
-
-Best Performing Action
-Payment Link
-```
-
-Instead of asking:
-
-> "What normally works?"
-
-DhanRakshak asks:
-
-> **"What has historically worked for this specific customer?"**
+Retrain with `python scripts/train_models.py`. Artifacts are pinned to the library versions in `backend/requirements-deploy.txt`.
 
 ---
 
-# 🧩 03 — Root Cause Intelligence
+## 🎨 Frontend: 3D experience & Command Center
 
-A payment failure is not always the actual reason revenue is at risk.
+### `/` — Scrollable 3D experience
+Built with **react-three-fiber**, **drei** and **three.js**, and lazy-loaded so the 3D code doesn't slow the first paint.
 
-DhanRakshak combines event history, payment behavior, customer context, and recovery history to determine the most likely root cause.
+| Section | What it shows | Interaction |
+|---|---|---|
+| Shield | Faceted guardian shield with a vortex of gold coins | Moves with scroll and mouse |
+| Live pulse | Revenue at risk, verified recovered, incremental, high-risk exposure, leak breakdown | Animated counters, tilt cards |
+| The loop | The 8-step recovery loop | Scroll-reveal |
+| **Risk galaxy** | 220 highest-exposure customers in 3D (LTV × open amount × predicted risk) | Orbit, zoom, hover, click → live model dossier |
+| **Model lab** | 3D bars of recovery probability per action vs the do-nothing baseline | Sliders and chips call `/api/v1/ml/score` live |
+| Recovery twin | With vs without DhanRakshak | Animated comparison |
+| Models | Metrics read from the saved artifacts | — |
 
-### Example
-
-```text
-Payment Failed
-      ↓
-Authentication Failure
-      ↓
-2 Previous Card Failures
-      ↓
-UPI Success Rate = 94%
-      ↓
-Previous UPI Recovery Success
-      ↓
-RECOMMENDATION
-Generate UPI Payment Link
-```
-
-Root-cause explanations are grounded in stored application data.
+### `/console` — Command Center
+Overview · Revenue Radar · Recovery Autopilot · Customers · Promises · Experiments · Audit Trail · AI Command Center · Integrations · Model Performance · Recovery Twin.
 
 ---
 
-# 💰 04 — Recovery Economics Engine
+## 🔌 API reference
 
-A recovery action is not valuable simply because it has a high probability of success.
+Interactive docs: [`/docs`](https://dhanrakshak-yign.onrender.com/docs)
 
-DhanRakshak optimizes for **Expected Incremental Recovery Value**.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Liveness |
+| **POST** | **`/api/v1/ml/score`** | Score any scenario with all three models; returns risk, ranked actions, policy decision |
+| GET | `/api/v1/ml/customers?limit=` | Risk-scored customers |
+| GET | `/api/v1/ml/customers/{id}` | Live model dossier for one customer |
+| GET | `/api/v1/ml/summary` | Model versions and metrics |
+| POST | `/api/v1/ml/risk` · `/ml/action-probabilities` · `/ml/incrementality` | Individual model endpoints |
+| GET | `/api/v1/models/performance` | Raw metrics and metadata |
+| GET | `/api/v1/revenue-at-risk` | Revenue Leakage Radar |
+| GET | `/api/v1/revenue-recovered` | Verified recovered revenue |
+| POST | `/api/v1/recovery-twin/simulate` | Organic vs assisted vs incremental |
+| POST | `/api/v1/root-cause/analyze` | Root cause for a customer |
+| GET | `/api/v1/customers` · `/customers/{id}` · `/customers/{id}/recovery-dna` | Customers and Recovery DNA |
+| POST | `/api/v1/recovery/simulate` · `/decide` · `/execute` · `/stop` | Bounded recovery workflow |
+| POST | `/api/v1/policy/check` | Policy Guard decision |
+| GET/POST | `/api/v1/promises-to-pay` | Promise ledger and natural-language capture |
+| GET/POST | `/api/v1/experiments` | Experiments |
+| GET | `/api/v1/audit` | Audit trail |
+| POST | `/api/v1/webhooks/razorpay` | Signed, idempotent Razorpay webhook |
+| POST | `/api/v1/demo/reset` · `/demo/run` | Deterministic demo |
 
-### Conceptual objective
+<details>
+<summary>Example: score a scenario</summary>
 
-```text
-Expected Incremental Revenue
-
-= Recoverable Amount
-× P(Recovery)
-× P(Incremental Recovery)
-
-− Intervention Cost
-− Customer Friction
-− Risk Penalty
+```bash
+curl -X POST https://dhanrakshak-yign.onrender.com/api/v1/ml/score \
+  -H 'Content-Type: application/json' \
+  -d '{"amount": 25000, "payment_method": "upi", "segment": "SMB", "days_overdue": 12}'
 ```
-
-The engine evaluates actions such as:
-
-```text
-Retry
-Payment Link
-WhatsApp
-Email
-SMS
-Delayed Retry
-Promise-to-Pay
-Human Escalation
-No Action
-```
-
-This lets DhanRakshak choose the action that provides the best expected economic outcome rather than blindly maximizing attempts.
-
----
-
-# 🪞 05 — Recovery Twin
-
-One of DhanRakshak's key ideas is separating **recovered revenue** from **incremental recovered revenue**.
-
-The Recovery Twin compares:
-
-```text
-              WITHOUT              WITH
-             DHANRAKSHAK        DHANRAKSHAK
-
-Revenue
-At Risk          ₹X                  ₹X
-
-Organic
-Recovery         ₹Y                  ₹Y
-
-Assisted
-Recovery          —                  ₹Z
-
-Incremental
-Recovery          —                  ₹Z
-```
-
-The question becomes:
-
-> **"How much additional revenue did DhanRakshak actually create?"**
-
-This prevents the system from taking credit for revenue that would have recovered naturally.
-
----
-
-# 📈 06 — Incrementality Engine
-
-Not every successful payment is caused by an intervention.
-
-DhanRakshak therefore distinguishes:
-
-```text
-Gross Recovery
-      ↓
-Estimated Organic Recovery
-      ↓
-Incremental Recovery
-```
-
-Where appropriate, randomized control/treatment experiments can be used to estimate intervention uplift.
-
-### Key measurements
-
-* Recovery rate
-* Incremental recovery
-* Treatment vs control uplift
-* Action-level performance
-* Expected vs actual recovery
-* Recovery time
-* Revenue recovered per intervention
-
----
-
-# 🛡️ 07 — Policy Guard
-
-Financial automation needs deterministic boundaries.
-
-DhanRakshak's Policy Guard is the final authority before an action can be executed.
-
-### Example policy
-
-```text
-Maximum attempts                 3
-Messages / 7 days                2
-Maximum recovery actions         3
-Maximum discount                 10%
-Human escalation above           ₹1,00,000
-Minimum model confidence          0.65
-```
-
-### Automatically stop when
-
-```text
-✓ Payment succeeds
-✓ Customer opts out
-✓ Dispute is detected
-✓ Fraud signal appears
-✓ Recovery limit is reached
-```
-
-Every policy decision is logged:
-
-```text
-Policy ID
-Decision
-Rules Evaluated
-Rules Failed
-Reason
-Timestamp
-Model Version
-Action
-Outcome
-```
-
-The AI cannot bypass these controls.
-
----
-
-# 🤖 08 — Recovery Agent
-
-The recovery agent operates inside a bounded state machine.
-
-```text
-DETECTED
-   ↓
-DIAGNOSED
-   ↓
-RECOMMENDED
-   ↓
-POLICY_CHECKED
-   ↓
-EXECUTED
-   ↓
-VERIFICATION_PENDING
-   ↓
-RECOVERED
-```
-
-Possible alternative outcomes:
-
-```text
-FAILED
-STOPPED
-ESCALATED
-```
-
-### Agent tools
-
-```text
-get_customer_history()
-get_transaction_history()
-get_revenue_risk()
-get_root_cause()
-
-predict_action_recovery()
-calculate_expected_recovery()
-
-check_policy()
-
-create_payment_link()
-schedule_retry()
-send_notification()
-
-record_promise_to_pay()
-
-escalate_to_human()
-stop_recovery()
-
-record_recovery_outcome()
-```
-
-The agent cannot directly execute a financial action without passing through the Policy Guard.
-
----
-
-# 💬 09 — Promise-to-Pay Intelligence
-
-DhanRakshak can convert natural-language payment commitments into structured recovery workflows.
-
-### Example
-
-> "Monday ko ₹50,000 clear kar dunga."
-
-The system extracts:
 
 ```json
 {
-  "amount": 50000,
-  "promised_date": "Monday",
-  "confidence": 0.96
+  "risk": { "probability_unrecovered": 0.60, "tier": "medium", "model_version": "revenue_risk-v1" },
+  "organic_recovery_probability": 0.29,
+  "do_nothing_probability": 0.34,
+  "recommended_action": "human_escalation",
+  "policy_decision": "ALLOW",
+  "actions": [{ "action": "human_escalation", "recovery_probability": 0.58, "expected_incremental_value": 5300.4 }, "..."],
+  "explanation": "60% chance this ₹25,000 stays unrecovered. Doing nothing recovers 34% ..."
 }
 ```
+</details>
 
-Then:
+---
 
-```text
-Promise Detected
-      ↓
-Promise Recorded
-      ↓
-Reminder Scheduled
-      ↓
-Payment Link Generated
-      ↓
-Payment Verified
-      ↓
-Promise Closed
+## 🗃️ Data model
+
+```mermaid
+erDiagram
+    CUSTOMERS ||--o{ TRANSACTIONS : has
+    CUSTOMERS ||--o{ SUBSCRIPTIONS : has
+    CUSTOMERS ||--o{ INVOICES : has
+    CUSTOMERS ||--o{ CHECKOUT_SESSIONS : has
+    CUSTOMERS ||--o{ RECOVERY_EVENTS : has
+    CUSTOMERS ||--o{ PROMISES_TO_PAY : makes
+    CUSTOMERS ||--o| CUSTOMER_RECOVERY_MEMORY : "Recovery DNA"
+    CUSTOMERS ||--o{ REVENUE_RISK_SCORES : scored
+    RECOVERY_EVENTS ||--o{ RECOVERY_ACTIONS : triggers
+    RECOVERY_ACTIONS ||--o{ RECOVERY_OUTCOMES : verified_by
+    RECOVERY_EVENTS ||--o{ ROOT_CAUSE_PREDICTIONS : explains
+    RECOVERY_EVENTS ||--o{ ACTION_PREDICTIONS : predicts
+
+    CUSTOMERS {
+        uuid id
+        string segment
+        string preferred_channel
+        string preferred_payment_method
+    }
+    TRANSACTIONS {
+        uuid id
+        decimal amount
+        string status
+        string failure_code
+        datetime occurred_at
+    }
+    RECOVERY_EVENTS {
+        uuid id
+        string event_type
+        json payload
+    }
+    RECOVERY_ACTIONS {
+        uuid id
+        string action_type
+        string status
+        text rationale
+    }
+    RECOVERY_OUTCOMES {
+        uuid id
+        decimal recovered_amount
+        string status
+        datetime verified_at
+    }
+    PROMISES_TO_PAY {
+        uuid id
+        decimal amount
+        datetime promised_for
+        string status
+        float confidence
+    }
 ```
 
-If the promise is missed, the recovery strategy can be recalculated.
+Supporting tables: `audit_logs`, `policies`, `experiments`, `model_versions`, `webhook_events`, `notification_events`. Schema migrations live in `backend/alembic/`.
+
+**Dataset:** `synthetic-benchmark-2026-v1`, made up of fictional merchants and customers (100k customers, 200k checkouts, 150k invoices, 100k subscriptions), split chronologically into `data/train`, `data/validation`, `data/test`.
 
 ---
 
-# 🧑‍💻 10 — AI Command Center
+## 🛠️ Tech stack
 
-Instead of navigating through multiple dashboards, merchants can interact directly with their revenue data.
-
-### Example queries
-
-```text
-"Show me the highest-value revenue at risk."
-
-"Why is this subscription at risk?"
-
-"Which recovery action should we use?"
-
-"How much revenue was recovered incrementally?"
-
-"Show customers with high recovery probability."
-
-"Why was this customer escalated?"
-
-"Which intervention performs best?"
-```
-
-The command center uses backend tools and stored data rather than generating unsupported dashboard information.
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, three.js, @react-three/fiber, @react-three/drei, Recharts, Framer Motion, lucide-react |
+| Backend | FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, Uvicorn |
+| ML | XGBoost, scikit-learn pipelines, pandas, NumPy |
+| Data | SQLite (demo / deploy), PostgreSQL 16 (docker-compose) |
+| Payments | Razorpay adapter (signature verification, idempotent webhooks), demo adapter |
+| Infra | Docker (multi-stage), Render (`render.yaml`), docker-compose for local full stack |
 
 ---
 
-# ⚡ 11 — Recovery Autopilot
-
-The Recovery Autopilot visualizes the complete decision and execution pipeline.
-
-```text
-SCANNING REVENUE EVENTS
-          ↓
-IDENTIFYING HIGH-RISK OPPORTUNITIES
-          ↓
-ANALYZING CUSTOMER RECOVERY DNA
-          ↓
-SIMULATING INTERVENTIONS
-          ↓
-APPLYING POLICY GUARDRAILS
-          ↓
-EXECUTING APPROVED ACTIONS
-          ↓
-VERIFYING PAYMENT OUTCOMES
-          ↓
-CALCULATING INCREMENTAL REVENUE
-```
-
-The interface follows the money:
-
-```text
-AT RISK
-   ↓
-INTELLIGENCE
-   ↓
-POLICY
-   ↓
-RECOVERY
-   ↓
-RECOVERED
-```
-
----
-
-# 🧪 Machine Learning Pipeline
-
-DhanRakshak uses specialized models for specialized decisions.
-
-```text
-                         DATA
-                           │
-                           ▼
-                    DATA VALIDATION
-                           │
-                           ▼
-                  FEATURE ENGINEERING
-                           │
-             ┌─────────────┼─────────────┐
-             ▼             ▼             ▼
-        Risk Model    Action Model   Uplift Model
-             │             │             │
-             └─────────────┼─────────────┘
-                           ▼
-                  Recovery Economics
-                           │
-                           ▼
-                      Policy Guard
-                           │
-                           ▼
-                    Recovery Action
-```
-
----
-
-## Model 01 — Revenue Risk Model
-
-Predicts:
-
-> **The probability that a revenue event remains unrecovered without intervention.**
-
-### Example features
-
-* Transaction amount
-* Payment method
-* Failure reason
-* Retry count
-* Customer lifetime value
-* Payment success rate
-* Recovery history
-* Days overdue
-* Subscription status
-* Checkout stage
-* Customer tenure
-* Previous interventions
-* Time/day behavior
-* Customer segment
-
----
-
-## Model 02 — Action Recovery Model
-
-Estimates:
-
-> **P(Recovery | Customer, Event, Action)**
-
-for each available intervention.
-
-Example actions:
-
-```text
-Retry
-Payment Link
-WhatsApp
-Email
-SMS
-Delayed Retry
-Promise-to-Pay
-Human Escalation
-No Action
-```
-
----
-
-## Model 03 — Incrementality Model
-
-Estimates:
-
-> **How likely the customer would have recovered without the intervention.**
-
-This allows DhanRakshak to estimate the actual incremental value created by an intervention.
-
----
-
-# 📊 Model Evaluation
-
-The platform evaluates models using:
-
-```text
-ROC-AUC
-PR-AUC
-Precision
-Recall
-F1
-Brier Score
-Calibration
-Precision@K
-Action-level Recovery Rate
-Treatment vs Control Recovery
-Uplift / Qini
-```
-
-Metrics displayed by the application are generated from trained model artifacts and evaluation data.
-
-**No model performance numbers are hardcoded.**
-
----
-
-# 🗃️ Data Architecture
-
-DhanRakshak works with interconnected revenue entities:
-
-```text
-CUSTOMERS
-    │
-    ├── TRANSACTIONS
-    │
-    ├── SUBSCRIPTIONS
-    │
-    ├── INVOICES
-    │
-    ├── CHECKOUT SESSIONS
-    │
-    ├── RECOVERY EVENTS
-    │
-    ├── PROMISES
-    │
-    └── EXPERIMENTS
-```
-
-### Customer-level intelligence
-
-```text
-Payment Success Rate
-Recovery Success Rate
-Preferred Payment Method
-Preferred Channel
-Average Order Value
-Lifetime Value
-Customer Tenure
-Recovery Fatigue
-Promise Reliability
-Average Recovery Time
-Previous Failed Attempts
-```
-
----
-
-# 🔬 Data Quality & Leakage Prevention
-
-The ML pipeline validates:
-
-* Duplicate identifiers
-* Negative amounts
-* Invalid timestamps
-* Impossible event sequences
-* Invalid customer references
-* Invalid payment methods
-* Invalid recovery actions
-* Recovered amount exceeding original amount
-* Target leakage
-* Future information entering historical features
-
-For realistic evaluation, the dataset is split chronologically:
-
-```text
-PAST
- │
- ├── TRAIN
- │
- ├── VALIDATION
- │
- └── FUTURE TEST
-                          → TIME
-```
-
-This better represents production-style model evaluation.
-
----
-
-# 🔌 Integration Architecture
-
-DhanRakshak uses a provider abstraction so the intelligence layer remains independent of provider-specific payloads.
-
-```text
-                 PaymentProvider
-                       │
-              ┌────────┴────────┐
-              │                 │
-        Demo Adapter      Payment Adapter
-```
-
-### Event flow
-
-```text
-Payment Event
-     ↓
-Webhook Gateway
-     ↓
-Signature Validation
-     ↓
-Idempotency Check
-     ↓
-Event Normalization
-     ↓
-Revenue Intelligence
-     ↓
-Policy Guard
-     ↓
-Recovery Action
-     ↓
-Payment Verification
-```
-
-### Integration safeguards
-
-* Signature validation
-* Idempotency
-* Duplicate protection
-* Replay protection
-* Structured logging
-* Secret isolation
-* No secret logging
-
----
-
-# 🎬 Demo Scenarios
-
-DhanRakshak includes deterministic benchmark scenarios covering different recovery decisions.
-
-| Case |    Amount | Situation                 | Decision                |
-| ---- | --------: | ------------------------- | ----------------------- |
-| 01   | ₹2,40,000 | Overdue invoice           | UPI Payment Link        |
-| 02   |    ₹8,499 | Card failed twice         | Alternate payment route |
-| 03   |   ₹12,999 | Abandoned checkout        | Timed intervention      |
-| 04   |   ₹50,000 | Promise-to-pay            | Scheduled recovery      |
-| 05   | ₹1,85,000 | High-value / uncertain    | Human escalation        |
-| 06   |         — | Customer opted out        | Stop                    |
-| 07   |         — | Payment already succeeded | Stop                    |
-
-The benchmark environment uses synthetic/simulated data and is clearly separated from production data.
-
----
-
-# 🧩 Product Modules
-
-| Module                    | Purpose                                        |
-| ------------------------- | ---------------------------------------------- |
-| **Revenue Radar**         | Detect revenue at risk                         |
-| **Recovery Autopilot**    | Execute controlled recovery workflows          |
-| **Customer Recovery DNA** | Understand customer-specific recovery behavior |
-| **Promises**              | Track natural-language payment commitments     |
-| **Recovery Twin**         | Estimate incremental revenue                   |
-| **Experiments**           | Measure intervention performance               |
-| **AI Command Center**     | Query revenue intelligence conversationally    |
-| **Audit Trail**           | Track every decision and action                |
-| **Model Performance**     | Monitor ML quality and calibration             |
-| **Integrations**          | Connect payment providers and event sources    |
-
----
-
-# 🛠️ Technology Stack
-
-## Frontend
-
-* React
-* TypeScript
-* Vite
-* Tailwind CSS
-* Framer Motion
-* Recharts
-* Lucide React
-
-## Backend
-
-* Python
-* FastAPI
-* Pydantic
-* SQLAlchemy
-* Alembic
-* PostgreSQL
-
-## Machine Learning
-
-* pandas
-* NumPy
-* scikit-learn
-* XGBoost
-
-## AI
-
-* LLM provider abstraction
-* Tool-based agent architecture
-* Structured outputs
-* Deterministic execution boundaries
-
-## Infrastructure
-
-* Docker
-* Docker Compose
-* Vercel
-* Render
-* PostgreSQL
-
----
-
-# 📁 Project Structure
+## 📁 Project structure
 
 ```text
 DhanRakshak/
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   └── lib/
-│   └── package.json
-│
 ├── backend/
 │   ├── app/
-│   │   ├── api/
-│   │   ├── agents/
-│   │   ├── integrations/
-│   │   ├── ml/
-│   │   ├── models/
-│   │   ├── policies/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   └── main.py
-│   │
-│   ├── data/
-│   │   ├── raw/
-│   │   ├── processed/
-│   │   ├── train/
-│   │   ├── validation/
-│   │   └── test/
-│   │
-│   ├── models/
-│   │   ├── revenue_risk/
-│   │   ├── action_recovery/
-│   │   └── incrementality/
-│   │
-│   └── tests/
-│
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
-
---
-# 🚀 Deployment
-
-DhanRakshak is designed for a separated production architecture.
-
-```text
-                         INTERNET
-                            │
-                            ▼
-                 ┌───────────────────┐
-                 │      Vercel       │
-                 │ React Application │
-                 └─────────┬─────────┘
-                           │
-                           ▼
-                 ┌───────────────────┐
-                 │      Render       │
-                 │    FastAPI API    │
-                 └─────────┬─────────┘
-                           │
-             ┌─────────────┼─────────────┐
-             ▼             ▼             ▼
-       ┌──────────┐  ┌───────────┐  ┌──────────┐
-       │PostgreSQL│  │ ML Models │  │ Payment  │
-       │          │  │           │  │ Provider │
-       └──────────┘  └───────────┘  └──────────┘
-```
-
-### Frontend
-
-```text
-GitHub
-   ↓
-Vercel
-   ↓
-React Production Build
-```
-
-### Backend
-
-```text
-GitHub
-   ↓
-Render
-   ↓
-FastAPI
-   ↓
-PostgreSQL
+│   │   ├── main.py                 # REST routes + serves built UI
+│   │   ├── ml_api.py               # live inference: /api/v1/ml/*
+│   │   ├── models.py · schemas.py · db.py · config.py
+│   │   ├── ml/                     # feature engineering + model wrappers
+│   │   ├── services/               # radar, root cause, DNA, economics, policy, agent, promises
+│   │   └── adapters/               # razorpay, demo
+│   ├── alembic/                    # migrations
+│   ├── tests/                      # pytest suite
+│   ├── dhanrakshak.db              # seeded demo ledger (built by scripts/build_demo_db.py)
+│   └── requirements*.txt
+├── frontend/
+│   └── src/
+│       ├── experience/             # 3D experience: scenes, galaxy, model lab
+│       ├── App.tsx                 # Command Center (/console)
+│       └── main.tsx                # route switch
+├── models/                         # trained artifacts + demo_customer_profiles.csv
+├── data/                           # synthetic dataset (raw + chronological splits)
+├── scripts/                        # generate · validate · train · seed · build_demo_db
+├── tests/                          # dataset pipeline tests
+├── docs/ARCHITECTURE.md
+├── Dockerfile · render.yaml        # single-service deployment
+└── docker-compose.yml              # local Postgres + API + UI
 ```
 
 ---
 
-# 🎨 Design Philosophy
+## 🚀 Getting started
 
-DhanRakshak is designed as a **premium fintech command center**, rather than a generic admin dashboard.
-
-### Visual principles
-
-* Dark premium interface
-* High information density
-* Large financial metrics
-* Thin borders
-* Controlled gradients
-* Subtle glass effects
-* Smooth micro-interactions
-* Motion-driven state transitions
-* Data-first visualization
-* Responsive layouts
-* Minimal visual noise
-
-The primary product narrative is:
-
-```text
-REVENUE AT RISK
-       ↓
-WHY
-       ↓
-WHAT WILL WORK
-       ↓
-POLICY
-       ↓
-RECOVERY
-       ↓
-INCREMENTAL REVENUE
-```
-
----
-
-# 🏆 What Makes DhanRakshak Different?
-
-| Capability                         | DhanRakshak |
-| ---------------------------------- | :---------: |
-| Revenue risk prediction            |      ✓      |
-| Root-cause intelligence            |      ✓      |
-| Customer Recovery DNA              |      ✓      |
-| Action-level recovery prediction   |      ✓      |
-| Recovery economics                 |      ✓      |
-| Incremental revenue measurement    |      ✓      |
-| Recovery Twin                      |      ✓      |
-| Promise-to-pay intelligence        |      ✓      |
-| Policy-aware AI agent              |      ✓      |
-| Deterministic financial guardrails |      ✓      |
-| Recovery fatigue                   |      ✓      |
-| Experimentation                    |      ✓      |
-| Human escalation                   |      ✓      |
-| Full audit trail                   |      ✓      |
-| Provider abstraction               |      ✓      |
-| Multilingual recovery intelligence |      ✓      |
-
----
-
-# 🔒 Safety by Design
-
-DhanRakshak is built around a simple principle:
-
-> **Autonomy without control is a liability.**
-
-Therefore:
-
-### AI does not control money.
-
-The system separates:
-
-```text
-AI Reasoning
-     +
-ML Prediction
-     +
-Deterministic Policy
-     +
-Backend Execution
-     +
-Payment Verification
-     +
-Auditability
-```
-
-Critical events are explicitly handled:
-
-* Customer opt-out
-* Successful payment
-* Dispute
-* Fraud signal
-* Excessive recovery attempts
-* Low model confidence
-* High-value transactions
-* Duplicate events
-* Failed execution
-
-When confidence is insufficient, DhanRakshak can choose:
-
-> **ESCALATE TO HUMAN**
-
-instead of pretending to know.
-
----
-
-# 📊 Example Decision
-
-Consider a ₹2,40,000 overdue invoice.
-
-The system sees:
-
-```text
-Amount
-₹2,40,000
-
-Customer
-Enterprise
-
-Previous Payment Method
-UPI
-
-UPI Success Rate
-94%
-
-Previous Recovery via Payment Link
-High
-
-Days Overdue
-12
-
-Recovery Risk
-HIGH
-```
-
-DhanRakshak evaluates:
-
-```text
-Retry
-        ↓
-Expected Value: ₹X
-
-Payment Link
-        ↓
-Expected Value: ₹Y
-
-Email
-        ↓
-Expected Value: ₹Z
-
-Human Escalation
-        ↓
-Expected Value: ₹W
-```
-
-The Recovery Economics Engine selects the highest expected incremental value that also satisfies the Policy Guard.
-
-Then:
-
-```text
-POLICY → ALLOW
-     ↓
-ACTION → PAYMENT LINK
-     ↓
-PAYMENT → VERIFIED
-     ↓
-RECOVERY → RECORDED
-     ↓
-INCREMENTAL VALUE → CALCULATED
-```
-
-Every step is traceable.
-
----
-
-# 🌏 India-Native Intelligence
-
-DhanRakshak is designed for multilingual customer interactions.
-
-Supported language contexts can include:
-
-```text
-English
-Hindi
-Hinglish
-Bengali
-Tamil
-Telugu
-Marathi
-Gujarati
-Kannada
-Malayalam
-```
-
-For example:
-
-> "Monday ko ₹50,000 clear kar dunga."
-
-can be interpreted as a structured promise-to-pay rather than treated as unstructured text.
-
----
-
-# 🔭 Future Roadmap
-
-### Phase 1 — Intelligent Recovery
-
-* Revenue risk prediction
-* Customer Recovery DNA
-* Action recommendation
-* Policy enforcement
-
-### Phase 2 — Autonomous Recovery
-
-* Bounded recovery agent
-* Payment execution
-* Promise-to-pay automation
-* Human escalation
-
-### Phase 3 — Revenue Intelligence
-
-* Recovery Twin
-* Incrementality measurement
-* Intervention experiments
-* Cross-channel optimization
-
-### Phase 4 — Adaptive Revenue OS
-
-* Continuous model learning
-* Merchant-specific policies
-* Dynamic recovery strategies
-* Cross-provider intelligence
-* Predictive revenue forecasting
-
----
-
-# 💭 Product Philosophy
-
-DhanRakshak is built around three principles.
-
-## 01 — Recover More
-
-Prioritize actions based on expected incremental revenue.
-
-## 02 — Friction Less
-
-Use the smallest effective intervention instead of repeatedly contacting customers.
-
-## 03 — Explain Everything
-
-Every important decision should have:
-
-```text
-Evidence
-   +
-Model Context
-   +
-Policy Context
-   +
-Action
-   +
-Outcome
-```
-
----
-
-# 🚨 From Reactive Recovery to Intelligent Revenue Operations
-
-Traditional recovery:
-
-```text
-FAILED PAYMENT
-      ↓
-RETRY
-      ↓
-RETRY
-      ↓
-REMINDER
-```
-
-DhanRakshak:
-
-```text
-UNDERSTAND
-     ↓
-PREDICT
-     ↓
-OPTIMIZE
-     ↓
-CONTROL
-     ↓
-ACT
-     ↓
-VERIFY
-     ↓
-LEARN
-```
-
----
-
-# 🌟 The Vision
-
-Revenue recovery should not be a collection of retries and reminders.
-
-It should be an intelligent system that understands:
-
-```text
-WHAT IS AT RISK
-       +
-WHY IT IS AT RISK
-       +
-WHO IS LIKELY TO PAY
-       +
-WHAT WILL MOST LIKELY WORK
-       +
-WHAT IS SAFE TO DO
-       +
-WHAT ACTUALLY CREATED VALUE
-```
-
-That is DhanRakshak.
-
----
-
-# ⭐ DhanRakshak
-
-### Every rupee deserves a second chance.
-
-**Understand revenue. Predict recovery. Act intelligently. Measure what actually worked.**
-
-```
-```
-
----
-
-# 🌐 Live 3D experience & deployment
-
-The repo now ships as a **single deployable service**: FastAPI serves the API, the three trained models, and the built React UI.
-
-| Route | What it is |
-|---|---|
-| `/` | Scrollable, interactive 3D experience (react-three-fiber): live pulse, risk galaxy (orbit + click any customer), model lab with live inference, recovery twin, model metrics |
-| `/console` | The original Command Center dashboard |
-| `/api/v1/ml/score` | Score any scenario with all three models (risk, per-action recovery, incrementality) |
-| `/api/v1/ml/customers[/{id}]` | Model-scored customers from the demo ledger |
-| `/api/v1/ml/summary` | Metrics straight from the saved model artifacts |
-
-### Rebuild everything locally
+**Prerequisites:** Python 3.13, Node 22.
 
 ```bash
+git clone https://github.com/oindreela04/DhanRakshak.git && cd DhanRakshak
+
+# 1. Backend dependencies
 pip install -r backend/requirements-deploy.txt
-python scripts/train_models.py --data-root data --output-root models   # trains revenue_risk, action_recovery, incrementality
-python scripts/build_demo_db.py                                        # 600-customer SQLite ledger + model-scored profiles
+
+# 2. (Optional) retrain models and rebuild the demo ledger
+python scripts/train_models.py --data-root data --output-root models
+python scripts/build_demo_db.py
+
+# 3. Build the UI
 cd frontend && npm ci && npm run build && cd ..
-cd backend && uvicorn app.main:app --port 8000                         # open http://localhost:8000
+
+# 4. Run — UI and API on one port
+cd backend && uvicorn app.main:app --port 8000
+# → http://localhost:8000  (3D experience)
+# → http://localhost:8000/console  (Command Center)
+# → http://localhost:8000/docs  (API docs)
 ```
 
-### Deploy
+**Frontend dev mode** (hot reload, talks to the API on :8000): `cd frontend && npm run dev`
 
-`Dockerfile` + `render.yaml` at the repo root build the UI and the API into one image. Model artifacts are pinned to the library versions in `backend/requirements-deploy.txt` they were trained with.
+**Full stack with Postgres:** `docker compose up --build`
+
+Configuration (`.env`, see `.env.example`): `DATABASE_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `LLM_API_KEY`, `LLM_PROVIDER`, `ENVIRONMENT`.
+
+---
+
+## ☁️ Deployment
+
+```mermaid
+flowchart LR
+    GH["GitHub push"] --> R["Render build"]
+    R --> S1["Stage 1 · node:22<br/>npm ci && vite build"]
+    R --> S2["Stage 2 · python:3.13-slim<br/>pinned deps + backend + models"]
+    S1 -->|frontend/dist| S2
+    S2 --> RUN["uvicorn app.main:app<br/>$PORT"]
+    RUN --> URL(["dhanrakshak-yign.onrender.com"])
+```
+
+- One Docker image serves the UI, the API and the models; no CORS or second service needed.
+- `render.yaml` declares the service (Docker runtime, free plan, `/health` check).
+- Auto-deploys on every push to the configured branch.
+- The demo SQLite ledger is baked into the image. Runtime writes (policy checks, promises) reset on each redeploy.
+
+---
+
+## 🧪 Testing
+
+```bash
+cd backend && pytest -q     # API, services, radar, root cause, DNA, webhooks
+cd .. && pytest -q tests    # dataset pipeline
+```
+
+---
+
+## 🔭 Roadmap
+
+- [ ] LLM reasoning layer for explanations and multilingual message drafting (config hooks already exist)
+- [ ] Live Razorpay payment-link execution and outcome verification via webhooks
+- [ ] Persistent Postgres in production plus scheduled radar runs
+- [ ] Contextual-bandit action selection learning from verified outcomes
+- [ ] Per-merchant policy editor in the Command Center
+- [ ] WhatsApp / SMS provider adapters
+
+---
+
+## ⚠️ Disclaimer
+
+All data in this repository and on the live demo is **synthetic**. Customers, merchants and amounts are fictional. The Razorpay integration runs in test mode. DhanRakshak is a research and demo project, not financial advice or a production collections system.
+
+<div align="center">
+
+**DhanRakshak** — *recover more, add less friction, explain everything.*
+
+</div>
