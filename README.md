@@ -14,6 +14,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Three.js](https://img.shields.io/badge/react--three--fiber-3D-000000?logo=threedotjs)
 ![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?logo=render&logoColor=black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f4b740.svg)](LICENSE)
 
 </div>
 
@@ -37,7 +38,8 @@
 12. [Deployment](#-deployment)
 13. [Testing](#-testing)
 14. [Roadmap](#-roadmap)
-15. [Disclaimer](#️-disclaimer)
+15. [License](#-license)
+16. [Disclaimer](#️-disclaimer)
 
 ---
 
@@ -547,6 +549,12 @@ cd .. && pytest -q tests    # dataset pipeline
 - [ ] Contextual-bandit action selection learning from verified outcomes
 - [ ] Per-merchant policy editor in the Command Center
 - [ ] WhatsApp / SMS provider adapters
+
+---
+
+## 📄 License
+
+Released under the [MIT License](LICENSE). © 2026 Oindreela Saha.
 
 ---
 
