@@ -24,7 +24,7 @@ export type RecoveryDna = {
   recovery_confidence: number
 }
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '')
 
 export type RadarOpportunity = {
   reason: string

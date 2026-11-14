@@ -1,0 +1,49 @@
+{
+  "model_version": "revenue_risk-v1",
+  "training_timestamp": "2026-11-14T17:04:49.030597+00:00",
+  "dataset_version": "synthetic-benchmark-2026-v1",
+  "training_rows": 62240,
+  "validation_rows": 105283,
+  "test_rows": 132477,
+  "features": [
+    "amount",
+    "customer_lifetime_value",
+    "historical_payment_success_rate",
+    "historical_recovery_rate",
+    "retry_count",
+    "days_overdue",
+    "customer_tenure",
+    "previous_failed_attempts",
+    "previous_recovery_actions",
+    "days_since_last_payment",
+    "payment_method",
+    "failure_reason",
+    "subscription_status",
+    "checkout_stage",
+    "preferred_channel",
+    "time_of_day",
+    "day_of_week",
+    "segment"
+  ],
+  "target": "eventually_unrecovered",
+  "metrics": {
+    "roc_auc": 0.6138265878103489,
+    "pr_auc": 0.6060738123145627,
+    "precision": 0.5786873194166624,
+    "recall": 0.6365756413149778,
+    "f1": 0.6062527426273698,
+    "brier_score": 0.24070463836926223,
+    "calibration": 0.7592953616307377,
+    "test": {
+      "roc_auc": 0.6080537423473702,
+      "pr_auc": 0.6016318016156793,
+      "precision": 0.5727593749176483,
+      "recall": 0.6497802624891627,
+      "f1": 0.6088436326965097,
+      "brier_score": 0.2425100366300368,
+      "calibration": 0.7574899633699632,
+      "precision_at_top_5_pct": 0.7033066586139212,
+      "precision_at_top_10_pct": 0.6757756473163735
+    }
+  }
+}

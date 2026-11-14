@@ -1399,3 +1399,31 @@ That is DhanRakshak.
 
 ```
 ```
+
+---
+
+# 🌐 Live 3D experience & deployment
+
+The repo now ships as a **single deployable service**: FastAPI serves the API, the three trained models, and the built React UI.
+
+| Route | What it is |
+|---|---|
+| `/` | Scrollable, interactive 3D experience (react-three-fiber): live pulse, risk galaxy (orbit + click any customer), model lab with live inference, recovery twin, model metrics |
+| `/console` | The original Command Center dashboard |
+| `/api/v1/ml/score` | Score any scenario with all three models (risk, per-action recovery, incrementality) |
+| `/api/v1/ml/customers[/{id}]` | Model-scored customers from the demo ledger |
+| `/api/v1/ml/summary` | Metrics straight from the saved model artifacts |
+
+### Rebuild everything locally
+
+```bash
+pip install -r backend/requirements-deploy.txt
+python scripts/train_models.py --data-root data --output-root models   # trains revenue_risk, action_recovery, incrementality
+python scripts/build_demo_db.py                                        # 600-customer SQLite ledger + model-scored profiles
+cd frontend && npm ci && npm run build && cd ..
+cd backend && uvicorn app.main:app --port 8000                         # open http://localhost:8000
+```
+
+### Deploy
+
+`Dockerfile` + `render.yaml` at the repo root build the UI and the API into one image. Model artifacts are pinned to the library versions in `backend/requirements-deploy.txt` they were trained with.
