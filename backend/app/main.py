@@ -49,6 +49,9 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="DhanRakshak API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+from app.ml_api import router as ml_router  # noqa: E402
+app.include_router(ml_router)
+
 
 @app.get("/health")
 async def health() -> dict[str, str]:
@@ -268,3 +271,19 @@ async def demo_run(session: Session = Depends(get_db)) -> GenericResponse:
 
 @app.get("/api/v1/demo/status")
 async def demo_status() -> GenericResponse: return GenericResponse(status=DEMO_STATE["status"], data=DEMO_STATE)
+
+
+# Serve the built React UI (single-service deployment). API routes above take precedence.
+from fastapi.responses import FileResponse  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+STATIC_DIR = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if STATIC_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa(full_path: str):
+        if full_path.startswith("api/"): raise HTTPException(status_code=404, detail="NOT_FOUND")
+        candidate = (STATIC_DIR / full_path).resolve()
+        if full_path and candidate.is_file() and STATIC_DIR in candidate.parents: return FileResponse(candidate)
+        return FileResponse(STATIC_DIR / "index.html")
